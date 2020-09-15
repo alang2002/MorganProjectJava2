@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 
 public class Main {
 
-    //TODO: Create and finish option 3 (search for and display single employee)
-
     // Setting up global variables to be used by all other methods in the class.
     static Scanner userInput = new Scanner(System.in);
     static String[][] employeeList = new String[10][3];
@@ -52,11 +50,10 @@ public class Main {
 
         // If statements to go to method of choice, or exit program if they selected 4
         switch (optionSelected) {
-            case "4":
-                System.exit(0);
             case "1":
                 if (employeeCounter == 10) {
-                    System.out.println("Error: too many employees, cannot add another to the database. Returning to menu...");
+                    System.out.println("Error: too many employees, cannot add another to the database. " +
+                            "Returning to menu...\n");
                     main(null);
                 } else {
                     enterEmployee();
@@ -66,6 +63,10 @@ public class Main {
                 displayAllEmployees();
                 break;
             // else if... for options 1-3
+            case "3":
+                displaySingleEmployee();
+            case "4":
+                System.exit(0);
             default:
                 System.out.println("Not a valid option, exiting...");
                 System.exit(0);
@@ -75,8 +76,8 @@ public class Main {
 
     // Method to enter a new employee into the database (String two-dimensional array)
     public static void enterEmployee() {
-        String employeeFirstName, employeeLastName, employeeStatus, repeat = "";
-        double paycheckAmount = 0.0;
+        String employeeFirstName, employeeLastName, employeeStatus, repeat;
+        double paycheckAmount;
 
         // Enter employee information
         // Use do while loops to have code run once, then check to make sure input from user was not null
@@ -108,7 +109,6 @@ public class Main {
             else if (employeeStatus.equals("PT")) {
                 employeeStatus = "Part Time";
             }
-            //TODO: Rewrite this statement to instead not ask for their status again, but capitalize the string so it accepts it regardless
 
             // else statement to catch if they misspell FT or PT (e.g. "Ft")
             else {
@@ -133,15 +133,80 @@ public class Main {
         System.out.println("Employee entered successfully!");
 
         System.out.println("Would you like to enter another new employee? Y/N");
-        repeat = userInput.nextLine();
-        if (repeat.toUpperCase().equals("Y")) {
-            enterEmployee();
-        }
-        else {
-            System.out.println("Returning to menu...\n\n");
+        do {
+            repeat = userInput.nextLine();
+            if (repeat.toUpperCase().equals("Y")) {
+                enterEmployee();
+            }
+            else if (repeat.toUpperCase().equals("N")){
+                System.out.println("Returning to menu...");
+                main(null);
+            }
+            else {
+                System.out.println("Please enter Y or N.");
+                repeat = "";
+            }
+        } while(repeat.equals(""));
+
+        userInput.close();
+    }
+
+    public static void displaySingleEmployee() {
+        String firstName, lastName, fullName;
+        String paycheckFormatted, bonusFormatted;
+        String tempFName = null;
+        String tempLName = null;
+        String tempStatus = null;
+        double paycheck, bonus;
+        boolean employeeFound = false;
+
+        // if statement to handle if there are no employees in the string array
+        if (employeeCounter == 0) {
+            System.out.println("No employees in database! Add some in the menu.");
+            System.out.println("Returning to menu...\n");
             main(null);
         }
-        userInput.close();
+
+        System.out.println("Employee search: ");
+        System.out.println("Enter the employee's first name: ");
+        firstName = userInput.nextLine();
+        System.out.println("Enter the employee's last name: ");
+        lastName = userInput.nextLine();
+        System.out.println("Searching database...");
+
+        for (int i = 0; i < employeeCounter; i++) {
+            for (int j = 0; j < 3; j++) {
+                switch (j) {
+                    case 0 -> tempFName = employeeList[i][j];
+                    case 1 -> tempLName = employeeList[i][j];
+                    case 2 -> tempStatus = employeeList[i][j];
+                    default -> throw new IllegalStateException("Unexpected value: " + j);
+                }
+            }
+            if (tempFName.equals(firstName) && tempLName.equals(lastName)) {
+                // set up variables for correct outputting
+                fullName = firstName + " " + lastName;
+                paycheck = paycheckList[i];
+                bonus = returnBonus(paycheck, tempStatus);
+                paycheckFormatted = String.format("%.2f", paycheck);
+                bonusFormatted = String.format("%.2f", bonus);
+
+                System.out.println("Employee found!");
+                System.out.println("Name: " + fullName);
+                System.out.println("Status: " + tempStatus);
+                System.out.println("Paycheck: " + paycheckFormatted);
+                System.out.println("Bonus: " + bonusFormatted);
+                System.out.println("Returning to menu...");
+                employeeFound = true;
+                break;
+            }
+        }
+        if (!employeeFound) {
+            System.out.println("Employee not found. Try searching for a different name.");
+            System.out.println("Returning to menu...\n");
+            main(null);
+        }
+        main(null);
     }
 
     // Method to display all employees currently in the database
@@ -157,9 +222,8 @@ public class Main {
         String fullName;
         String status = null;
         String totalBonusLabel = "Total Bonuses Paid: ";
-        double paycheck = 0;
-        double bonusRate = 0;
-        double bonus = 0;
+        double paycheck;
+        double bonus;
         double totalBonusesPaid = 0;
 
         // if statement to handle if there are no employees in the string array
@@ -188,49 +252,55 @@ public class Main {
 
             fullName = lastName + ", " + firstName;
             paycheck = paycheckList[i];
-
-            // Large nested decision structure to determine bonus rate for employee
-            if (paycheck >= 0.01 && paycheck <= 100.00) {
-                if (status.equals("Part Time")) {
-                    bonusRate = bonusesList[0][0];
-                }
-                else {
-                    bonusRate = bonusesList[0][1];
-                }
-            }
-            else if (paycheck >= 100.01 && paycheck <= 300.00) {
-                if (status.equals("Part Time")) {
-                    bonusRate = bonusesList[1][0];
-                }
-                else {
-                    bonusRate = bonusesList[1][1];
-                }
-            }
-            else if (paycheck >= 300.01 && paycheck <= 500.00) {
-                if (status.equals("Part Time")) {
-                    bonusRate = bonusesList[2][0];
-                }
-                else {
-                    bonusRate = bonusesList[2][1];
-                }
-            }
-            else if (paycheck >= 500.01 && paycheck <= 9999.99) {
-                if (status.equals("Part Time")) {
-                    bonusRate = bonusesList[3][0];
-                }
-                else {
-                    bonusRate = bonusesList[3][1];
-                }
-            }
-            bonus = paycheck * bonusRate;
+            bonus = returnBonus(paycheck, status);
             totalBonusesPaid += bonus;
 
-            System.out.printf("%s %" + String.valueOf(28 - fullName.length()) +
-                    "s %" + String.valueOf(26 - status.length()) + ".2f %" + String.valueOf(15) + ".2f\n",
+            System.out.printf("%s %" + (28 - fullName.length()) +
+                    "s %" + (26 - status.length()) + ".2f %" + (15) + ".2f\n",
                     fullName, status, paycheck, bonus);
         }
         System.out.println("----------------------------------------------------------------");
         System.out.printf("%s %" + (62 - totalBonusLabel.length()) + ".2f\n", totalBonusLabel, totalBonusesPaid);
         main(null);
+    }
+
+    public static double returnBonus(double paycheck, String status) {
+        double bonusRate = 0, bonus;
+
+        // Large nested decision structure to determine bonus rate for employee
+        if (paycheck >= 0.01 && paycheck <= 100.00) {
+            if (status.equals("Part Time")) {
+                bonusRate = bonusesList[0][0];
+            }
+            else {
+                bonusRate = bonusesList[0][1];
+            }
+        }
+        else if (paycheck >= 100.01 && paycheck <= 300.00) {
+            if (status.equals("Part Time")) {
+                bonusRate = bonusesList[1][0];
+            }
+            else {
+                bonusRate = bonusesList[1][1];
+            }
+        }
+        else if (paycheck >= 300.01 && paycheck <= 500.00) {
+            if (status.equals("Part Time")) {
+                bonusRate = bonusesList[2][0];
+            }
+            else {
+                bonusRate = bonusesList[2][1];
+            }
+        }
+        else if (paycheck >= 500.01 && paycheck <= 9999.99) {
+            if (status.equals("Part Time")) {
+                bonusRate = bonusesList[3][0];
+            }
+            else {
+                bonusRate = bonusesList[3][1];
+            }
+        }
+        bonus = paycheck * bonusRate;
+        return bonus;
     }
 }
