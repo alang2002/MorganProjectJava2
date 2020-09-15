@@ -4,9 +4,12 @@ import java.util.Scanner;
 
 public class Main {
 
+    // TO-DO: set up file reading here from rates.dat
+    // put rates into 2d double array
+
     // Setting up global variables to be used by all other methods in the class.
     // Set to static so there is one copy universally.
-    static Scanner userInput;
+    static Scanner userInput = new Scanner(System.in);
     static String[][] employeeList = new String[10][3];
     static double[] paycheckList = new double[10];
     static int employeeCounter;
@@ -30,7 +33,8 @@ public class Main {
         // If statements to go to method of choice, or exit program if they selected 4
         if (optionSelected.equals("4")) {
             System.exit(0);
-        } else if (optionSelected.equals("1")) {
+        }
+        else if (optionSelected.equals("1")) {
             if (employeeCounter == 10) {
                 System.out.println("Error: too many employees, cannot add another to the database. Returning to menu...");
                 main(null);
@@ -39,11 +43,15 @@ public class Main {
                 enterEmployee();
             }
         }
+        else if (optionSelected.equals("2")) {
+            displayAllEmployees();
+        }
         // else if... for options 1-3
         else {
             System.out.println("Not a valid option, exiting...");
             System.exit(0);
         }
+        userInput.close();
     }
 
     // Method to enter a new employee into the database (String two-dimensional array)
@@ -80,11 +88,11 @@ public class Main {
         }while (paycheckAmount > 0.01 && paycheckAmount < 9999.99);
 
         System.out.println("Entering employee into database...");
-        employeeCounter++;
         employeeList[employeeCounter][1] = employeeFirstName;
         employeeList[employeeCounter][2] = employeeLastName;
         employeeList[employeeCounter][3] = employeeStatus;
         paycheckList[employeeCounter] = paycheckAmount;
+        employeeCounter++;
         System.out.println("Employee entered successfully!");
 
         System.out.println("Would you like to enter another new employee? Y/N");
@@ -96,7 +104,6 @@ public class Main {
             System.out.println("Returning to menu...");
             main(null);
         }
-        
     }
 
     // Method to display all employees currently in the database
